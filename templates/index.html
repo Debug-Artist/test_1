@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agronomic Momentum Optimization | Calculus & Yield Prediction Console</title>
+    
+    <!-- Custom Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- KaTeX for High-Fidelity Mathematical Typesetting -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" 
+            onload="renderMathInElement(document.body);"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+    <!-- ================================================================= -->
+    <!-- NAVIGATION & TELEMETRY MASTHEAD                                   -->
+    <!-- ================================================================= -->
+    <header class="masthead">
+        <div class="masthead-container">
+            <div class="brand-group">
+                <div class="brand-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="brand-title">AGRONOMIC VECTOR CALCULUS LAB</h1>
+                    <p class="brand-subtitle">Utilizing Partial Derivatives & Momentum Optimization for Crop Yield Prediction</p>
+                </div>
+            </div>
+
+            <div class="telemetry-bar">
+                {% if is_demo_mode %}
+                <div class="badge badge-warning" id="telemetry-badge">
+                    <span class="status-dot dot-warning"></span>
+                    <span>Demo Mode (Fallback Data)</span>
+                </div>
+                {% else %}
+                <div class="badge badge-success" id="telemetry-badge">
+                    <span class="status-dot dot-success"></span>
+                    <span>Dataset: {{ dataset_name }} ({{ dataset_rows }} Rows)</span>
+                </div>
+                {% endif %}
+                <div class="badge badge-info">
+                    <span class="mono">η = {{ learning_rate }}</span>
+                    <span class="divider">|</span>
+                    <span class="mono">β = {{ beta }}</span>
+                    <span class="divider">|</span>
+                    <span class="mono">Epochs: {{ epochs }}</span>
+                </div>
+                <button type="button" id="open-dataset-modal-btn" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.85rem; font-size: 0.8rem;">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+                    </svg>
+                    <span>Manage / Upload CSV</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ================================================================= -->
+    <!-- PROBLEM STATEMENT RESEARCH BANNER                                 -->
+    <!-- ================================================================= -->
+    <div class="problem-statement-banner">
+        <div class="problem-container">
+            <div class="ps-label">RESEARCH PROBLEM STATEMENT</div>
+            <div class="ps-text">
+                "{{ problem_statement }}"
+            </div>
+            <div class="ps-findings">
+                <span class="finding-chip {% if is_faster %}chip-pos{% endif %}">
+                    ⚡ Momentum Trained <strong>{{ speedup_factor }}x Faster</strong> to Error Threshold
+                </span>
+                <span class="finding-chip {% if is_more_accurate %}chip-pos{% endif %}">
+                    🎯 Momentum Test MSE: <strong>{{ test_mse_mom }}</strong> vs GD: <strong>{{ test_mse_gd }}</strong>
+                </span>
+                <span class="finding-chip chip-pos">
+                    📊 Active Target: <strong>{{ target_column }}</strong> on <strong>{{ dataset_name }}</strong>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- MAIN INTERACTIVE WORKSPACE                                        -->
+    <!-- ================================================================= -->
+    <main class="console-body">
+
+        <!-- SECTION 1: INFERENCE & FIELD PREDICTION STUDIO -->
+        <section class="console-grid">
+            
+            <!-- Left Panel: Input Controls -->
+            <div class="card card-inputs">
+                <div class="card-header">
+                    <div class="card-label">STAGE 1: FIELD TELEMETRY</div>
+                    <h2 class="card-title">Environmental & Agronomic Inputs</h2>
+                    <p class="card-desc">Adjust local farm conditions to test linear hypothesis inference: $\hat{y} = \mathbf{w}^T \mathbf{z} + b$.</p>
+                </div>
+
+                <form id="prediction-form" class="form-grid">
+                    
+                    <!-- Feature 1: Rainfall -->
+                    <div class="input-block">
+                        <div class="input-label-row">
+                            <label for="rainfall-input">Annual Rainfall ($x_1$)</label>
+                            <span class="unit-badge">mm</span>
+                        </div>
+                        <div class="control-row">
+                            <input type="range" id="rainfall-range" min="300" max="1800" step="10" value="850" class="field-slider">
+                            <input type="number" id="rainfall-input" name="Rainfall_mm" min="0" max="3000" step="1" value="850" class="field-number mono">
+                        </div>
+                        <div class="field-hint">Range: 300 – 1800 mm (Baseline Mean: 820 mm)</div>
+                    </div>
+
+                    <!-- Feature 2: Temperature -->
+                    <div class="input-block">
+                        <div class="input-label-row">
+                            <label for="temp-input">Mean Temperature ($x_2$)</label>
+                            <span class="unit-badge">°C</span>
+                        </div>
+                        <div class="control-row">
+                            <input type="range" id="temp-range" min="10" max="45" step="0.5" value="23.5" class="field-slider">
+                            <input type="number" id="temp-input" name="Temperature_C" min="-10" max="55" step="0.1" value="23.5" class="field-number mono">
+                        </div>
+                        <div class="field-hint">Optimal cereal range: 18°C – 28°C</div>
+                    </div>
+
+                    <!-- Feature 3: Soil pH -->
+                    <div class="input-block">
+                        <div class="input-label-row">
+                            <label for="ph-input">Soil Acidity/Alkalinity ($x_3$)</label>
+                            <span class="unit-badge">pH Scale</span>
+                        </div>
+                        <div class="control-row">
+                            <input type="range" id="ph-range" min="4.5" max="9.0" step="0.1" value="6.5" class="field-slider">
+                            <input type="number" id="ph-input" name="Soil_pH" min="0" max="14" step="0.1" value="6.5" class="field-number mono">
+                        </div>
+                        <div class="field-hint">Agronomic neutral: 6.0 – 7.2 pH</div>
+                    </div>
+
+                    <!-- Feature 4: Humidity -->
+                    <div class="input-block">
+                        <div class="input-label-row">
+                            <label for="humidity-input">Relative Humidity ($x_4$)</label>
+                            <span class="unit-badge">%</span>
+                        </div>
+                        <div class="control-row">
+                            <input type="range" id="humidity-range" min="20" max="95" step="1" value="65" class="field-slider">
+                            <input type="number" id="humidity-input" name="Humidity_pct" min="0" max="100" step="1" value="65" class="field-number mono">
+                        </div>
+                        <div class="field-hint">Ambient humidity level</div>
+                    </div>
+
+                    <!-- Feature 5: Fertilizer -->
+                    <div class="input-block">
+                        <div class="input-label-row">
+                            <label for="fertilizer-input">Fertilizer Application ($x_5$)</label>
+                            <span class="unit-badge">kg/ha</span>
+                        </div>
+                        <div class="control-row">
+                            <input type="range" id="fertilizer-range" min="20" max="250" step="5" value="135" class="field-slider">
+                            <input type="number" id="fertilizer-input" name="Fertilizer_Used_kg" min="0" max="500" step="1" value="135" class="field-number mono">
+                        </div>
+                        <div class="field-hint">NPK compound fertilization</div>
+                    </div>
+
+                    <button type="submit" id="predict-btn" class="btn btn-primary">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                        <span>Compute Real-Time Prediction</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Right Panel: Inference Readout & Feature Contributions -->
+            <div class="card card-readout">
+                <div class="card-header">
+                    <div class="card-label">STAGE 2: INFERENCE READOUT & ATTRIBUTION</div>
+                    <h2 class="card-title">Predicted Agricultural Yield</h2>
+                    <p class="card-desc">Evaluated via linear hypothesis: $\hat{y} = \mathbf{w}^T \mathbf{z} + b$</p>
+                </div>
+
+                <div class="prediction-duo">
+                    <!-- Momentum Readout (Primary) -->
+                    <div class="readout-box readout-momentum">
+                        <div class="readout-tag">
+                            <span class="dot-indicator dot-momentum"></span>
+                            <span>MOMENTUM OPTIMIZED</span>
+                        </div>
+                        <div class="readout-val">
+                            <span id="pred-momentum" class="number-hero">5.18</span>
+                            <span class="unit-hero">ton/ha</span>
+                        </div>
+                        <div class="readout-sub">
+                            <span>Test MSE: <strong class="mono" id="hero-mom-mse">{{ test_mse_mom }}</strong></span>
+                            <span class="divider">·</span>
+                            <span>Bias $b$: <strong class="mono" id="hero-mom-bias">{{ bias_mom }}</strong></span>
+                        </div>
+                    </div>
+
+                    <!-- Vanilla GD Readout (Comparative) -->
+                    <div class="readout-box readout-gd">
+                        <div class="readout-tag">
+                            <span class="dot-indicator dot-gd"></span>
+                            <span>VANILLA GRADIENT DESCENT</span>
+                        </div>
+                        <div class="readout-val">
+                            <span id="pred-gd" class="number-hero number-gd">4.92</span>
+                            <span class="unit-hero">ton/ha</span>
+                        </div>
+                        <div class="readout-sub">
+                            <span>Test MSE: <strong class="mono" id="hero-gd-mse">{{ test_mse_gd }}</strong></span>
+                            <span class="divider">·</span>
+                            <span>Bias $b$: <strong class="mono" id="hero-gd-bias">{{ bias_gd }}</strong></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feature Contribution Waterfall / Breakdown -->
+                <div class="feature-contrib-section">
+                    <div class="contrib-header">
+                        <span class="contrib-title">Feature Contribution Breakdown ($C_j = w_j z_j$)</span>
+                        <span class="contrib-baseline mono">Baseline Yield ($b$): <strong id="contrib-baseline-val">{{ bias_mom }}</strong> ton/ha</span>
+                    </div>
+                    <div class="contrib-list" id="contrib-list">
+                        {% for row in weights_summary %}
+                        <div class="contrib-item" id="contrib-item-{{ loop.index0 }}">
+                            <span class="contrib-name">{{ row.feature }}</span>
+                            <div class="contrib-bar-container">
+                                <div class="contrib-bar-fill {% if row.weight_mom >= 0 %}fill-pos{% else %}fill-neg{% endif %}" id="bar-fill-{{ loop.index0 }}" style="width: 40%;"></div>
+                            </div>
+                            <span class="contrib-val {% if row.weight_mom >= 0 %}pos{% else %}neg{% endif %}" id="contrib-val-{{ loop.index0 }}">
+                                {% if row.weight_mom >= 0 %}+{% endif %}{{ (row.weight_mom * 0.1) | round(2) }} ton/ha
+                            </span>
+                            <span class="contrib-pct" id="contrib-pct-{{ loop.index0 }}">--%</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Standardized Vector Monitor -->
+                <div class="vector-monitor" style="margin-top: 1.25rem;">
+                    <div class="vector-title">
+                        <span>Standardized Feature Vector $\mathbf{z} = \frac{\mathbf{x} - \boldsymbol{\mu}}{\boldsymbol{\sigma}}$</span>
+                        <span class="leak-badge">No Leakage (Fitted on Train)</span>
+                    </div>
+                    <div class="vector-grid" id="vector-grid">
+                        <div class="vector-cell"><span class="v-name">$z_1$ (Rain):</span> <span class="v-val mono" id="z-val-0">+0.12</span></div>
+                        <div class="vector-cell"><span class="v-name">$z_2$ (Temp):</span> <span class="v-val mono" id="z-val-1">-0.05</span></div>
+                        <div class="vector-cell"><span class="v-name">$z_3$ (pH):</span> <span class="v-val mono" id="z-val-2">+0.28</span></div>
+                        <div class="vector-cell"><span class="v-name">$z_4$ (Hum):</span> <span class="v-val mono" id="z-val-3">-0.18</span></div>
+                        <div class="vector-cell"><span class="v-name">$z_5$ (Fert):</span> <span class="v-val mono" id="z-val-4">+0.42</span></div>
+                    </div>
+                </div>
+
+                <!-- Agronomic Interpretation Notice -->
+                <div class="advisory-callout" style="margin-top: 1rem;">
+                    <div class="advisory-icon">ℹ</div>
+                    <div class="advisory-text">
+                        <strong>Mathematical Attribution:</strong> Total prediction is exactly $\hat{y} = b + \sum_{j=1}^n C_j$. Positive contributions push yield above the population baseline $b$, while negative contributions pull it below.
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- SECTION 2: FORMAL MODEL EVALUATION METRICS MATRIX                 -->
+        <!-- ================================================================= -->
+        <section class="card card-metrics">
+            <div class="card-header flex-header">
+                <div>
+                    <div class="card-label">STAGE 3: FORMAL MODEL EVALUATION</div>
+                    <h2 class="card-title">Generalization & Accuracy Metrics Suite</h2>
+                    <p class="card-desc">Evaluated strictly on held-out test data (20% split) to measure predictive fidelity.</p>
+                </div>
+                <div class="benchmark-pills">
+                    <div class="pill">
+                        <span class="pill-label">Split Ratio:</span>
+                        <span class="pill-value mono highlight-emerald">80% Train / 20% Test</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="metrics-dashboard-grid">
+                <!-- Metric 1: Mean Squared Error (MSE) -->
+                <div class="metric-card">
+                    <div class="metric-label-row">
+                        <span class="metric-name">Mean Squared Error</span>
+                        <span class="metric-abbr">MSE</span>
+                    </div>
+                    <div class="metric-comparison">
+                        <div class="metric-row">
+                            <span class="metric-tag"><span class="dot-indicator dot-momentum"></span>Momentum:</span>
+                            <span class="metric-val-mom mono" id="metric-mom-mse">{{ test_mse_mom }}</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-tag"><span class="dot-indicator dot-gd"></span>Vanilla GD:</span>
+                            <span class="metric-val-gd mono" id="metric-gd-mse">{{ test_mse_gd }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metric 2: Root Mean Squared Error (RMSE) -->
+                <div class="metric-card">
+                    <div class="metric-label-row">
+                        <span class="metric-name">Root Mean Squared Error</span>
+                        <span class="metric-abbr">RMSE</span>
+                    </div>
+                    <div class="metric-comparison">
+                        <div class="metric-row">
+                            <span class="metric-tag"><span class="dot-indicator dot-momentum"></span>Momentum:</span>
+                            <span class="metric-val-mom mono" id="metric-mom-rmse">{{ test_rmse_mom }}</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-tag"><span class="dot-indicator dot-gd"></span>Vanilla GD:</span>
+                            <span class="metric-val-gd mono" id="metric-gd-rmse">{{ test_rmse_gd }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metric 3: Mean Absolute Error (MAE) -->
+                <div class="metric-card">
+                    <div class="metric-label-row">
+                        <span class="metric-name">Mean Absolute Error</span>
+                        <span class="metric-abbr">MAE</span>
+                    </div>
+                    <div class="metric-comparison">
+                        <div class="metric-row">
+                            <span class="metric-tag"><span class="dot-indicator dot-momentum"></span>Momentum:</span>
+                            <span class="metric-val-mom mono" id="metric-mom-mae">{{ test_mae_mom }}</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-tag"><span class="dot-indicator dot-gd"></span>Vanilla GD:</span>
+                            <span class="metric-val-gd mono" id="metric-gd-mae">{{ test_mae_gd }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metric 4: R² Score -->
+                <div class="metric-card">
+                    <div class="metric-label-row">
+                        <span class="metric-name">Coeff. of Determination</span>
+                        <span class="metric-abbr">R² Score</span>
+                    </div>
+                    <div class="metric-comparison">
+                        <div class="metric-row">
+                            <span class="metric-tag"><span class="dot-indicator dot-momentum"></span>Momentum:</span>
+                            <span class="metric-val-mom mono" id="metric-mom-r2">{{ test_r2_mom }}</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-tag"><span class="dot-indicator dot-gd"></span>Vanilla GD:</span>
+                            <span class="metric-val-gd mono" id="metric-gd-r2">{{ test_r2_gd }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: CONVERGENCE LABORATORY & HYPERPARAMETER TUNER -->
+        <section class="card card-convergence">
+            <div class="card-header flex-header">
+                <div>
+                    <div class="card-label">STAGE 4: ALGORITHMIC BENCHMARKING</div>
+                    <h2 class="card-title">Convergence Trajectory & Empirical Loss Surfaces</h2>
+                    <p class="card-desc">Comparing parameter trajectory updates and optimization speeds over {{ epochs }} iterations.</p>
+                </div>
+                <div class="benchmark-pills">
+                    <div class="pill">
+                        <span class="pill-label">Speedup Factor:</span>
+                        <span class="pill-value mono highlight-emerald" id="hero-speedup">
+                            {{ speedup_factor }}x Faster
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="convergence-layout">
+                <!-- Plot Frame -->
+                <div class="plot-container">
+                    <img id="convergence-plot" src="data:image/png;base64,{{ plot_b64 }}" alt="Loss Convergence Comparison Plot" class="plot-img">
+                </div>
+
+                <!-- Hyperparameter Workbench -->
+                <div class="tuner-panel">
+                    <h3 class="panel-heading">Interactive Hyperparameter Workbench</h3>
+                    <p class="panel-sub">Modify learning rates or momentum terms to trigger live re-training and observe trajectory shifts.</p>
+
+                    <form id="retrain-form" class="tuner-form">
+                        <div class="tuner-field">
+                            <div class="tuner-label-row">
+                                <label for="tuner-epochs">Optimization Epochs ($t$)</label>
+                                <span class="mono mono-highlight" id="lbl-epochs">{{ epochs }}</span>
+                            </div>
+                            <input type="range" id="tuner-epochs" min="20" max="1000" step="10" value="{{ epochs }}" class="field-slider">
+                        </div>
+
+                        <div class="tuner-field">
+                            <div class="tuner-label-row">
+                                <label for="tuner-lr">Learning Rate ($\eta$)</label>
+                                <span class="mono mono-highlight" id="lbl-lr">{{ learning_rate }}</span>
+                            </div>
+                            <input type="range" id="tuner-lr" min="0.0005" max="0.05" step="0.0005" value="{{ learning_rate }}" class="field-slider">
+                        </div>
+
+                        <div class="tuner-field">
+                            <div class="tuner-label-row">
+                                <label for="tuner-beta">Momentum Factor ($\beta$)</label>
+                                <span class="mono mono-highlight" id="lbl-beta">{{ beta }}</span>
+                            </div>
+                            <input type="range" id="tuner-beta" min="0.0" max="0.98" step="0.02" value="{{ beta }}" class="field-slider">
+                        </div>
+
+                        <button type="submit" id="retrain-btn" class="btn btn-secondary">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M23 4v6h-6M1 20v-6h6"/>
+                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                            </svg>
+                            <span>Retrain Models & Benchmark</span>
+                        </button>
+                    </form>
+
+                    <!-- Telemetry Stats Grid -->
+                    <div class="telemetry-stats">
+                        <div class="t-stat">
+                            <span class="t-stat-label">Final Vanilla GD Loss</span>
+                            <span class="t-stat-val mono stat-gd" id="stat-loss-gd">{{ train_mse_gd }}</span>
+                        </div>
+                        <div class="t-stat">
+                            <span class="t-stat-label">Final Momentum Loss</span>
+                            <span class="t-stat-val mono stat-mom" id="stat-loss-mom">{{ train_mse_mom }}</span>
+                        </div>
+                        <div class="t-stat">
+                            <span class="t-stat-label">Epochs to Threshold (GD)</span>
+                            <span class="t-stat-val mono" id="stat-ep-gd">{{ epochs_to_threshold_gd }}</span>
+                        </div>
+                        <div class="t-stat">
+                            <span class="t-stat-label">Epochs to Threshold (Mom)</span>
+                            <span class="t-stat-val mono highlight-emerald" id="stat-ep-mom">{{ epochs_to_threshold_mom }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- SECTION 4: DEDICATED INTEGRATED MATHEMATICS SUITE                 -->
+        <!-- ================================================================= -->
+        <section class="card card-math" id="integrated-math-section">
+            <div class="math-header">
+                <div class="card-label">ACADEMIC RIGOR & FIRST PRINCIPLES</div>
+                <h2 class="math-title">Integrated Mathematical Foundations & Calculus Engine</h2>
+                <p class="math-subtitle">
+                    Rigorous derivations linking multivariable calculus, partial derivatives, linear regression, and momentum optimization.
+                </p>
+            </div>
+
+            <!-- Math Navigation Tabs -->
+            <div class="math-tabs-nav">
+                <button class="math-tab active" data-tab="tab-derivation">
+                    <span class="tab-index">01</span>
+                    <span>Partial Derivatives & Chain Rule</span>
+                </button>
+                <button class="math-tab" data-tab="tab-momentum">
+                    <span class="tab-index">02</span>
+                    <span>Exact Momentum Formulation</span>
+                </button>
+                <button class="math-tab" data-tab="tab-taylor">
+                    <span class="tab-index">03</span>
+                    <span>Taylor Series & Convexity</span>
+                </button>
+                <button class="math-tab" data-tab="tab-sandbox">
+                    <span class="tab-index">04</span>
+                    <span>Interactive Step-Calculator</span>
+                </button>
+            </div>
+
+            <!-- Tab Content 1: Partial Derivatives & Chain Rule -->
+            <div class="tab-pane active" id="tab-derivation">
+                <div class="math-content-grid">
+                    <div class="math-doc">
+                        <h3>Derivation of the Mean Squared Error Gradient</h3>
+                        <p>
+                            Let our training set comprise $m$ observations of $n=5$ standardized agronomic features. The linear hypothesis function is formulated as:
+                        </p>
+                        <div class="katex-display-box">
+                            $$\hat{y}^{(i)} = \mathbf{w}^T \mathbf{x}^{(i)} + b = \sum_{j=1}^n w_j x_{ij} + b$$
+                        </div>
+                        <p>
+                            The discrepancy between predicted yields $\hat{y}$ and actual harvest measurements $y$ is quantified by the Mean Squared Error (MSE) objective function:
+                        </p>
+                        <div class="katex-display-box">
+                            $$L(\mathbf{w}, b) = \frac{1}{m} \sum_{i=1}^m \left( \hat{y}^{(i)} - y^{(i)} \right)^2 = \frac{1}{m} \sum_{i=1}^m \left( \sum_{j=1}^n w_j x_{ij} + b - y_i \right)^2$$
+                        </div>
+
+                        <h4>Step-by-Step Multivariable Chain Rule</h4>
+                        <p>
+                            To minimize $L$, we compute the sensitivity of the loss with respect to each individual weight $w_j$ by treating all other parameters as invariant constants. Let the scalar residual be $e_i = (\hat{y}_i - y_i)$:
+                        </p>
+                        
+                        <div class="step-card">
+                            <div class="step-badge">STEP 1</div>
+                            <div class="step-math">
+                                <strong>Differentiate the Outer Quadratic Loss:</strong>
+                                $$\frac{\partial L}{\partial e_i} = \frac{\partial}{\partial e_i} \left[ \frac{1}{m} e_i^2 \right] = \frac{2}{m} e_i = \frac{2}{m} (\hat{y}_i - y_i)$$
+                            </div>
+                        </div>
+
+                        <div class="step-card">
+                            <div class="step-badge">STEP 2</div>
+                            <div class="step-math">
+                                <strong>Differentiate the Inner Hypothesis with respect to $w_j$:</strong>
+                                $$\frac{\partial e_i}{\partial w_j} = \frac{\partial}{\partial w_j} \left( w_1 x_{i1} + \dots + w_j x_{ij} + \dots + w_n x_{in} + b - y_i \right) = x_{ij}$$
+                            </div>
+                        </div>
+
+                        <div class="step-card">
+                            <div class="step-badge">STEP 3</div>
+                            <div class="step-math">
+                                <strong>Combine via Chain Rule for Analytical Weight Gradients:</strong>
+                                $$\frac{\partial L}{\partial w_j} = \sum_{i=1}^m \frac{\partial L}{\partial e_i} \frac{\partial e_i}{\partial w_j} = \mathbf{\frac{2}{m} \sum_{i=1}^m (\hat{y}_i - y_i) x_{ij}}$$
+                            </div>
+                        </div>
+
+                        <div class="step-card">
+                            <div class="step-badge">STEP 4</div>
+                            <div class="step-math">
+                                <strong>Analytical Partial Derivative with respect to Bias $b$:</strong>
+                                $$\frac{\partial e_i}{\partial b} = 1 \implies \mathbf{\frac{\partial L}{\partial b} = \frac{2}{m} \sum_{i=1}^m (\hat{y}_i - y_i)}$$
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="math-aside">
+                        <div class="aside-box">
+                            <h4>Pure NumPy Vectorization</h4>
+                            <p>Rather than iterating sample-by-sample via slow Python loops, the backend evaluates the gradient across the entire design matrix $\mathbf{X} \in \mathbb{R}^{m \times 5}$ in parallel:</p>
+                            <pre class="code-block"><code class="mono"># Vectorized Gradient Calculation in app.py
+residuals = y_pred - y_true
+dL_dw = (2.0 / m) * np.dot(X.T, residuals)
+dL_db = float((2.0 / m) * np.sum(residuals))</code></pre>
+                            <p class="aside-note">This leverages BLAS Level-3 C-routines under the hood, running in milliseconds.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content 2: Exact Momentum Formulation -->
+            <div class="tab-pane" id="tab-momentum">
+                <div class="math-content-grid">
+                    <div class="math-doc">
+                        <h3>The Project's Exact Momentum Formulation</h3>
+                        <p>
+                            In real-world agricultural datasets, differing feature scales distort the loss surface into an elongated elliptical ravine. Ordinary gradient descent oscillates violently across the steep walls.
+                        </p>
+                        <p>
+                            Our platform implements the exact momentum recurrence relation specified in your project requirements:
+                        </p>
+                        <div class="katex-display-box highlight-box">
+                            $$\mathbf{V}_t = \mathbf{V}_{t-1} + (1 - \beta) \nabla L(\theta_{t-1})$$
+                            $$\theta_t = \theta_{t-1} - \eta \mathbf{V}_t$$
+                        </div>
+                        <p>
+                            Where:
+                        </p>
+                        <ul class="symbol-list">
+                            <li>$\mathbf{V}_t$: Accumulated parameter velocity vector at epoch $t$, initialized to $\mathbf{0}$.</li>
+                            <li>$\beta \in [0, 1)$: Momentum damping factor ($0.90$).</li>
+                            <li>$(1 - \beta)$: Scale factor applied to the newly computed gradient step.</li>
+                            <li>$\eta$: Learning rate ($0.005$).</li>
+                            <li>$\theta_t$: Parameter vector $[\mathbf{w}^T, b]^T$.</li>
+                        </ul>
+
+                        <h4>Comparative Analysis of Momentum Conventions</h4>
+                        <div class="table-responsive">
+                            <table class="academic-table">
+                                <thead>
+                                    <tr>
+                                        <th>Optimization Variant</th>
+                                        <th>Velocity Recurrence</th>
+                                        <th>Physical Interpretation</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="highlight-row">
+                                        <td><strong>Your Project Convention</strong></td>
+                                        <td>$V_t = V_{t-1} + (1-\beta)\nabla L$</td>
+                                        <td><strong>Digital Integrator:</strong> Retains 100% of historical velocity and adds scaled incremental gradients.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Polyak's Heavy-Ball</strong></td>
+                                        <td>$V_t = \beta V_{t-1} + \nabla L$</td>
+                                        <td>Exponential decay on velocity with unit-weighted incoming gradient.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>PyTorch / EMA Momentum</strong></td>
+                                        <td>$V_t = \beta V_{t-1} + (1-\beta)\nabla L$</td>
+                                        <td>Exponentially Weighted Moving Average of gradients.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="math-aside">
+                        <div class="aside-box">
+                            <h4>Why Velocity Dampens Ravines</h4>
+                            <p>Consider two successive steps across a valley wall:</p>
+                            <div class="mini-math">
+                                $$\nabla L_1 = \begin{bmatrix} +15.0 \\ +0.2 \end{bmatrix}, \quad \nabla L_2 = \begin{bmatrix} -14.8 \\ +0.2 \end{bmatrix}$$
+                            </div>
+                            <p><strong>Lateral updates cancel out:</strong></p>
+                            <div class="mini-math">
+                                $$+15.0 + (-14.8) = +0.2 \approx 0$$
+                            </div>
+                            <p><strong>Longitudinal updates accumulate:</strong></p>
+                            <div class="mini-math">
+                                $$+0.2 + (+0.2) = +0.4 \text{ (Forward Boost)}$$
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content 3: Taylor Series & Convexity -->
+            <div class="tab-pane" id="tab-taylor">
+                <div class="math-content-grid">
+                    <div class="math-doc">
+                        <h3>Taylor Series Expansion & Local Linearization</h3>
+                        <p>
+                            To demonstrate why gradient descent moves opposite to the gradient, consider the second-order multivariable Taylor series expansion around parameter vector $\theta$:
+                        </p>
+                        <div class="katex-display-box">
+                            $$L(\theta + \Delta \theta) \approx L(\theta) + \nabla L(\theta)^T \Delta \theta + \frac{1}{2} \Delta \theta^T \mathbf{H} \Delta \theta$$
+                        </div>
+                        <p>
+                            Where $\mathbf{H} = \nabla^2 L(\theta) = \frac{2}{m}\mathbf{X}^T \mathbf{X}$ is the <strong>Hessian Matrix</strong> of second-order partial derivatives.
+                        </p>
+                        
+                        <h4>First-Order Linearization</h4>
+                        <p>
+                            For an infinitesimal step size $\|\Delta \theta\| \to 0$, the quadratic curvature term becomes negligible. The change in loss reduces to:
+                        </p>
+                        <div class="katex-display-box">
+                            $$\Delta L = L(\theta + \Delta \theta) - L(\theta) \approx \nabla L(\theta)^T \Delta \theta$$
+                        </div>
+                        <p>
+                            By the Cauchy-Schwarz inequality, the scalar inner product $\nabla L^T \Delta \theta$ achieves its maximum negative value when the displacement vector $\Delta \theta$ is oriented strictly antiparallel to the gradient vector:
+                        </p>
+                        <div class="katex-display-box highlight-box">
+                            $$\Delta \theta = -\eta \nabla L(\theta) \implies \Delta L \approx -\eta \|\nabla L(\theta)\|^2 < 0$$
+                        </div>
+                        <p>
+                            This proves that gradient descent is mathematically guaranteed to decrease loss locally.
+                        </p>
+
+                        <h4>Numerical Stability Bound</h4>
+                        <p>
+                            For the step to remain stable and avoid exploding gradients ($L \to \infty$), the learning rate must be strictly bounded by the maximum eigenvalue of the Hessian matrix:
+                        </p>
+                        <div class="katex-display-box">
+                            $$\eta < \frac{2}{\lambda_{\max}(\mathbf{H})} = \frac{2}{\lambda_{\max}\left(\frac{2}{m}\mathbf{X}^T\mathbf{X}\right)}$$
+                        </div>
+                    </div>
+
+                    <div class="math-aside">
+                        <div class="aside-box">
+                            <h4>Examiner Defense Tip</h4>
+                            <p><strong>Examiner Question:</strong> <em>"What guarantees that your linear regression model has no local minima?"</em></p>
+                            <p><strong>Your Answer:</strong> <em>"Because the Hessian matrix $\mathbf{H} = \frac{2}{m}\mathbf{X}^T\mathbf{X}$ is positive semi-definite for any real feature matrix $\mathbf{X}$, the Mean Squared Error loss surface is strictly convex. A strictly convex function has a single global minimum, eliminating any risk of getting trapped in suboptimal local minima."</em></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content 4: Interactive Calculus Step-Calculator -->
+            <div class="tab-pane" id="tab-sandbox">
+                <div class="sandbox-container">
+                    <div class="sandbox-intro">
+                        <h3>Live Calculus Single-Sample Step Calculator</h3>
+                        <p>Enter hypothetical single-observation values below to witness the real-time execution of the multivariable chain rule, residual computation, partial derivatives, and parameter velocity updates.</p>
+                    </div>
+
+                    <div class="sandbox-layout">
+                        <!-- Inputs -->
+                        <div class="sandbox-inputs">
+                            <div class="s-input-group">
+                                <label>Rainfall ($x_1$ mm):</label>
+                                <input type="number" id="sb-rain" value="820" class="field-number mono">
+                            </div>
+                            <div class="s-input-group">
+                                <label>Temperature ($x_2$ °C):</label>
+                                <input type="number" id="sb-temp" value="22" class="field-number mono">
+                            </div>
+                            <div class="s-input-group">
+                                <label>Soil pH ($x_3$):</label>
+                                <input type="number" id="sb-ph" value="6.5" step="0.1" class="field-number mono">
+                            </div>
+                            <div class="s-input-group">
+                                <label>Humidity ($x_4$ %):</label>
+                                <input type="number" id="sb-hum" value="68" class="field-number mono">
+                            </div>
+                            <div class="s-input-group">
+                                <label>Fertilizer ($x_5$ kg/ha):</label>
+                                <input type="number" id="sb-fert" value="140" class="field-number mono">
+                            </div>
+                            <div class="s-input-group highlight-input">
+                                <label>Actual Field Yield ($y$ ton/ha):</label>
+                                <input type="number" id="sb-actual" value="5.50" step="0.01" class="field-number mono">
+                            </div>
+
+                            <button type="button" id="calc-math-btn" class="btn btn-primary btn-block">
+                                <span>Evaluate Analytical Calculus</span>
+                            </button>
+                        </div>
+
+                        <!-- Mathematical Step-Through Output -->
+                        <div class="sandbox-results" id="sb-results">
+                            <div class="res-card">
+                                <div class="res-label">1. PREDICTED YIELD ($\hat{y}$) & RESIDUAL ($e_i$)</div>
+                                <div class="res-val-grid">
+                                    <div>Predicted: <strong class="mono" id="sb-res-yhat">--</strong> ton/ha</div>
+                                    <div>Residual ($e_i = \hat{y} - y$): <strong class="mono" id="sb-res-e">--</strong></div>
+                                    <div>Squared Error ($e_i^2$): <strong class="mono" id="sb-res-e2">--</strong></div>
+                                </div>
+                            </div>
+
+                            <div class="res-card">
+                                <div class="res-label">2. EVALUATED PARTIAL DERIVATIVES ($\frac{\partial L}{\partial w_j} = 2 e_i z_j$)</div>
+                                <div class="gradient-chips" id="sb-res-grads">
+                                    <span class="chip">$\frac{\partial L}{\partial w_1}$: <strong class="mono">--</strong></span>
+                                    <span class="chip">$\frac{\partial L}{\partial w_2}$: <strong class="mono">--</strong></span>
+                                    <span class="chip">$\frac{\partial L}{\partial w_3}$: <strong class="mono">--</strong></span>
+                                    <span class="chip">$\frac{\partial L}{\partial w_4}$: <strong class="mono">--</strong></span>
+                                    <span class="chip">$\frac{\partial L}{\partial w_5}$: <strong class="mono">--</strong></span>
+                                    <span class="chip chip-bias">$\frac{\partial L}{\partial b}$: <strong class="mono">--</strong></span>
+                                </div>
+                            </div>
+
+                            <div class="res-card">
+                                <div class="res-label">3. SIMULATED MOMENTUM VELOCITY & PARAMETER UPDATE</div>
+                                <div class="gradient-chips" id="sb-res-updates">
+                                    <span class="chip chip-vel">$V_1^{\text{new}}$: <strong class="mono">--</strong></span>
+                                    <span class="chip chip-vel">$V_5^{\text{new}}$: <strong class="mono">--</strong></span>
+                                    <span class="chip chip-weight">$w_1^{\text{next}}$: <strong class="mono">--</strong></span>
+                                    <span class="chip chip-weight">$w_5^{\text{next}}$: <strong class="mono">--</strong></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- SECTION 5: PARAMETER WEIGHT AUDIT & DATASET SPECIFICATIONS -->
+        <section class="card card-audit">
+            <div class="card-header">
+                <div class="card-label">STAGE 5: PARAMETER AUDIT & COEFFICIENT WEIGHTS</div>
+                <h2 class="card-title">Learned Feature Weights & Optimization State</h2>
+                <p class="card-desc">Inspection of active regression weights, feature distributions, and momentum velocity components.</p>
+            </div>
+
+            <div class="table-responsive">
+                <table class="academic-table">
+                    <thead>
+                        <tr>
+                            <th>Feature Name</th>
+                            <th>Train Mean ($\mu$)</th>
+                            <th>Train Std ($\sigma$)</th>
+                            <th>Vanilla GD Weight ($w_{\text{gd}}$)</th>
+                            <th>Momentum Weight ($w_{\text{mom}}$)</th>
+                            <th>Accumulated Velocity ($V_w$)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in weights_summary %}
+                        <tr>
+                            <td><strong>{{ row.feature }}</strong></td>
+                            <td class="mono">{{ row.mean }}</td>
+                            <td class="mono">{{ row.std }}</td>
+                            <td class="mono stat-gd">{{ row.weight_gd }}</td>
+                            <td class="mono stat-mom font-bold">{{ row.weight_mom }}</td>
+                            <td class="mono text-muted">{{ row.velocity }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ================================================================= -->
+    <!-- DATASET MANAGEMENT & UPLOAD MODAL                                 -->
+    <!-- ================================================================= -->
+    <div class="modal-overlay" id="dataset-modal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div>
+                    <h3 class="modal-title">Custom CSV Dataset Manager</h3>
+                    <p class="card-desc">Load and train on your own agricultural dataset without synthetic fallback.</p>
+                </div>
+                <button type="button" class="modal-close-btn" id="close-dataset-modal-btn">&times;</button>
+            </div>
+
+            <div class="active-dataset-meta">
+                <div class="meta-row">
+                    <span class="text-muted">Active File:</span>
+                    <strong class="mono" id="modal-active-file">{{ dataset_name }}</strong>
+                </div>
+                <div class="meta-row">
+                    <span class="text-muted">Total Observations ($m$):</span>
+                    <strong class="mono" id="modal-active-rows">{{ dataset_rows }} rows</strong>
+                </div>
+                <div class="meta-row">
+                    <span class="text-muted">Target Variable ($y$):</span>
+                    <strong class="mono highlight-emerald" id="modal-active-target">{{ target_column }}</strong>
+                </div>
+                <div class="meta-row">
+                    <span class="text-muted">Features ($x_1 \dots x_n$):</span>
+                    <strong class="mono" id="modal-active-features">{{ feature_columns | join(', ') }}</strong>
+                </div>
+            </div>
+
+            <form id="upload-csv-form">
+                <div class="dropzone-container" id="dropzone">
+                    <input type="file" id="csv-file-input" accept=".csv" style="display: none;">
+                    <svg class="dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5-5 5 5M12 15V3"/>
+                    </svg>
+                    <div class="dropzone-text" id="dropzone-text">Click to browse or drag & drop your CSV file here</div>
+                    <div class="dropzone-sub">Accepts tabular CSV containing crop features and yield target</div>
+                </div>
+
+                <button type="submit" id="upload-csv-btn" class="btn btn-primary btn-block" disabled>
+                    <span>Upload CSV & Train Models</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="console-footer">
+        <div class="footer-container">
+            <div>
+                <strong>Crop Yield Prediction & Momentum Optimization Platform</strong>
+                <span class="divider">|</span>
+                <span>Applied Vector Calculus & Machine Learning Demonstration</span>
+            </div>
+            <div class="footer-meta">
+                <span>FastAPI 0.110</span> · <span>Render Production Ready</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Client-Side JavaScript Application Controller -->
+    <script src="/static/js/main.js"></script>
+</body>
+</html>

@@ -1,3 +1,5 @@
+# CSV FILE SOURCE : https://www.kaggle.com/datasets/miadul/smart-crop-yield-predication-dataset #
+
 # Crop Yield Predictor: Calculus & Momentum Optimization Engine
 
 A production-grade, mathematically rigorous agricultural yield prediction platform built with **FastAPI**, **Pure NumPy Vector Calculus**, and **Jinja2**.
